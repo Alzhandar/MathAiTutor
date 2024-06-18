@@ -1,48 +1,22 @@
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useSession, signOut } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-interface User {
-  username: string;
-  email: string;
-}
 
 const HomePage = () => {
-  const router = useRouter();
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (status === 'loading') return; 
-    if (!session) {
-      router.push('/login');
-    } else {
-      axios.get<User>('/api/user/profile', {
-        headers: { Authorization: `Bearer ${session.accessToken}` },
-      })
-      .then((response) => setUser(response.data))
-      .catch(() => router.push('/login'));
-    }
-  }, [session, status]);
+  const router = useRouter();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      {user ? (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-bold">Welcome, {user.username}</h1>
-          <p>Email: {user.email}</p>
-          <button
-            onClick={() => {
-              signOut();
-            }}
-            className="w-full p-2 bg-red-500 text-white rounded"
-          >
-            Logout
-          </button>
+    <div className="flex items-center justify-between p-4 bg-gray-100">
+      <h1 className="text-2xl font-bold">Главная страница</h1>
+      {status === 'loading' ? (
+        <p>Загрузка...</p>
+      ) : session ? (
+        <div className="flex items-center space-x-4">
+          <button onClick={() => router.push('/profile')} className="p-2 bg-blue-500 text-white rounded">Профиль</button>
+          <button onClick={() => signOut()} className="p-2 bg-red-500 text-white rounded">Выйти</button>
         </div>
       ) : (
-        <p>Loading...</p>
+        <button onClick={() => router.push('/login')} className="p-2 bg-blue-500 text-white rounded">Логин</button>
       )}
     </div>
   );
