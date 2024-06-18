@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -9,20 +10,21 @@ interface User {
 
 const HomePage = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (status === 'loading') return; 
+    if (!session) {
       router.push('/login');
     } else {
       axios.get<User>('/api/user/profile', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${session.accessToken}` },
       })
       .then((response) => setUser(response.data))
       .catch(() => router.push('/login'));
     }
-  }, []);
+  }, [session, status]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -32,8 +34,7 @@ const HomePage = () => {
           <p>Email: {user.email}</p>
           <button
             onClick={() => {
-              localStorage.removeItem('token');
-              router.push('/login');
+              signOut();
             }}
             className="w-full p-2 bg-red-500 text-white rounded"
           >

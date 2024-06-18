@@ -12,8 +12,10 @@ const RegisterForm = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/register', { username, email, password });
-      router.push('/');
+      const response = await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
+      if (response.status === 201) {
+        router.push('/');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Something went wrong');
     }
