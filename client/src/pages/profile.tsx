@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/utils/axios';
 
 const ProfilePage = () => {
   const { data: session, status } = useSession();
@@ -14,7 +14,7 @@ const ProfilePage = () => {
     } else if (status === 'authenticated') {
       const fetchUser = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/api/user/profile', {
+          const response = await axiosInstance.get('/user/profile', {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
